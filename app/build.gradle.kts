@@ -56,6 +56,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.qrcode.g0dkar)
 
     // Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")

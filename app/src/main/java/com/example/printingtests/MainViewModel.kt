@@ -2,6 +2,9 @@ package com.example.printingtests
 
 import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
@@ -16,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import qrcode.QRCode
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -24,7 +28,7 @@ import java.net.Socket
 class MainViewModel : ViewModel() {
 
     val _pdfFileUri: MutableStateFlow<Uri?> = MutableStateFlow(null)
-            val pdfFileUri: StateFlow<Uri?> = _pdfFileUri
+    val pdfFileUri: StateFlow<Uri?> = _pdfFileUri
 
     private val _isPdfGenerated = MutableStateFlow(false)
     val isPdfGenerated: StateFlow<Boolean>
@@ -132,22 +136,9 @@ class MainViewModel : ViewModel() {
             canvas.drawText("Discount:", 8f, 51f, labelPaint)
             canvas.drawText("$discountPercentage%", 50f, 51f, valuePaint)
 
-            // QR code placeholder (replace with QR code bitmap if available)
-            val qrRect = RectF(55f, 8f, 80f, 33f)
-            val qrPaint = Paint().apply {
-                color = Color.GRAY
-                style = Paint.Style.STROKE
-                strokeWidth = 1.5f
-            }
-            canvas.drawRect(qrRect, qrPaint)
-            val qrTextPaint = Paint().apply {
-                color = Color.GRAY
-                textSize = 5f
-                textAlign = Paint.Align.CENTER
-            }
-            canvas.drawText("QR", qrRect.centerX(), qrRect.centerY() + 2f, qrTextPaint)
-            // Optionally, draw the qrCodeInt string below the QR code
-            canvas.drawText(qrCodeContent, qrRect.centerX(), qrRect.bottom + 6f, qrTextPaint)
+
+
+            generateQRCode(canvas, qrCodeContent)
 
             pdfDocument.finishPage(page)
 
@@ -159,7 +150,7 @@ class MainViewModel : ViewModel() {
                 fos.use { output ->
                     pdfDocument.writeTo(output)
                 }
-                Log.i("Main","PDF saved to: ${file.absolutePath}")
+                Log.i("Main", "PDF saved to: ${file.absolutePath}")
                 // Save URI for printing
                 _pdfFileUri.value = Uri.fromFile(file)
                 _isPdfGenerated.value = true
@@ -172,4 +163,53 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    private fun generateQRCodeFake(canvas: Canvas?, qrCodeContent: String) {
+        if (canvas == null) return
+
+        val qrRect = RectF(55f, 8f, 80f, 33f)
+        val qrPaint = Paint().apply {
+            color = Color.GRAY
+            style = Paint.Style.STROKE
+            strokeWidth = 1.5f
+        }
+        canvas.drawRect(qrRect, qrPaint)
+        val qrTextPaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 5f
+            textAlign = Paint.Align.CENTER
+        }
+        canvas.drawText("QR", qrRect.centerX(), qrRect.centerY() + 2f, qrTextPaint)
+        // Optionally, draw the qrCodeInt string below the QR code
+        canvas.drawText(qrCodeContent, qrRect.centerX(), qrRect.bottom + 6f, qrTextPaint)
+    }
+
+
+    private fun generateQRCode(canvas: Canvas?, qrCodeContent: String) {
+        if (canvas == null) return
+
+        // Generate QR code PNG as ByteArray
+        val qrCodeBitmap = QRCode.ofSquares()
+            .withSize(1) // Default is 25
+            .build(data = qrCodeContent)
+            .render()
+            .nativeImage() as Bitmap
+
+        val pageWidth = 85 // 3cm in points
+        val pageHeight = 85
+
+        val qrSize = 20f // size in points
+        val left = (pageWidth - qrSize) / 2f
+        val top = pageHeight* 2f / 3
+
+        canvas.drawBitmap(
+            qrCodeBitmap,
+            null, // source rect (null = entire bitmap)
+            RectF(left, top, left + qrCodeBitmap.width, top + qrCodeBitmap.height), // destination rect in PDF units
+            null // paint
+        )
+    }
 }
+
+
+//
