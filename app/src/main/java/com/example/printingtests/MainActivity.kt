@@ -1,8 +1,6 @@
 package com.example.printingtests
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,7 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 
 
 class MainActivity : ComponentActivity() {
@@ -31,12 +29,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val context = LocalContext.current
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column {
-                    GeneratePdf()
+                    GeneratePdf(
+                        onClickGenerate = { viewModel.generatePdfFromFields(
+                            context = context,
+                            discountPercentage = 38,
+                            productName = "Frieda Miranda",
+                            initialPriceCents = 9305,
+                            finalPriceCents = 7495,
+                            qrCodeContent = " 9988#61#2000001091449#000485",
+                            )}
+                    )
                     PrintCommand(
                         onPrintClicked = {
                             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -51,15 +60,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
-    private fun checkStoragePermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
 fun GeneratePdf(
     onClickGenerate: () -> Unit = {},
 ) {
-    Button(onClick = onClickGenerate) { Text("Generate PDF") }
+    Button(onClick = { onClickGenerate() }) { Text("Generate PDF") }
 }
 
 @Composable
