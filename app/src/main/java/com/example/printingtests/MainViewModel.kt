@@ -26,6 +26,12 @@ class MainViewModel : ViewModel() {
     val _pdfFileUri: MutableStateFlow<Uri?> = MutableStateFlow(null)
             val pdfFileUri: StateFlow<Uri?> = _pdfFileUri
 
+    private val _isPdfGenerated = MutableStateFlow(false)
+    val isPdfGenerated: StateFlow<Boolean>
+        get() = _isPdfGenerated
+    private val _isSentToPrinter = MutableStateFlow(false)
+    val isSentToPrinter: StateFlow<Boolean>
+        get() = _isSentToPrinter
 
 
     fun sendPdfToPrinter(
@@ -50,6 +56,7 @@ class MainViewModel : ViewModel() {
                                 outStream.write(buffer, 0, bytesRead)
                             }
                             outStream.flush()
+                            _isSentToPrinter.value = true
                         } ?: throw Exception("Unable to open PDF InputStream")
                     }
                 }
@@ -57,6 +64,7 @@ class MainViewModel : ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Handle error (show message, log, etc.)
+                _isSentToPrinter.value = false
             }
         }
     }
@@ -154,8 +162,10 @@ class MainViewModel : ViewModel() {
                 Log.i("Main","PDF saved to: ${file.absolutePath}")
                 // Save URI for printing
                 _pdfFileUri.value = Uri.fromFile(file)
+                _isPdfGenerated.value = true
             } catch (e: IOException) {
                 e.printStackTrace()
+                _isPdfGenerated.value = false
             } finally {
                 pdfDocument.close()
                 fos?.close()
