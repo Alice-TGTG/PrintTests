@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
     val PRINTER_IP = "192.168.8.201" // MACBOOK: "10.24.111.121" // "192.168.1.32" // ZQL620: "192.168.8.201"
     val PRINTER_PORT = 9100
 
+    val QR_CODE = "9988#61#2000001091449#000485"
 
     val viewModel: MainViewModel by viewModels<MainViewModel>()
 
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
                                 productName = "Frieda Miranda",
                                 initialPriceCents = 9305,
                                 finalPriceCents = 7495,
-                                qrCodeContent = "9988#61#2000001091449#000485",
+                                qrCodeContent = QR_CODE,
                             )
                         }
                     )
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     )
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                     PrintZPLWithQRCode(onClickSendZPL = {
-                        viewModel.sendZPL(printerIp = PRINTER_IP)
+                        viewModel.sendZPL(printerIp = PRINTER_IP, qrCodeContent = QR_CODE)
                     })
                 }
             }

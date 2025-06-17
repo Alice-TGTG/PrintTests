@@ -38,7 +38,9 @@ class MainViewModel : ViewModel() {
     val isSentToPrinter: StateFlow<Boolean>
         get() = _isSentToPrinter
 
-    fun sendZPL(printerIp: String) {
+    fun sendZPL(printerIp: String,
+                qrCodeContent: String,
+                ) {
 
         Log.i("Print Test", "Attempting to send ZPL bytes...")
 
@@ -65,7 +67,7 @@ class MainViewModel : ViewModel() {
 
                 ^FO224,100           
                 ^BQN,2,6
-                ^FDLA,9988#61#2000001091449#000485^FS
+                ^FDLA,$qrCodeContent^FS
 
                 ^XZ
                 """.trimIndent()
