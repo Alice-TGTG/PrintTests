@@ -3,7 +3,6 @@ package com.example.printingtests
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -15,6 +14,8 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zebra.sdk.comm.ConnectionException
+import com.zebra.sdk.comm.TcpConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,51 @@ class MainViewModel : ViewModel() {
     private val _isSentToPrinter = MutableStateFlow(false)
     val isSentToPrinter: StateFlow<Boolean>
         get() = _isSentToPrinter
+
+    fun sendZPL(printerIp: String) {
+
+        Log.i("Print Test", "Attempting to send ZPL bytes...")
+
+        viewModelScope.launch(context = Dispatchers.IO) {
+            // Instantiate connection for ZPL TCP port at given address
+            val thePrinterConn = TcpConnection(printerIp, TcpConnection.DEFAULT_ZPL_TCP_PORT)
+
+            try {
+                // Open the connection - physical connection is established here.
+                thePrinterConn.open()
+
+                // This example prints "This is a ZPL test." near the top of the label.
+                val zplData =
+                // Send QR Code
+                """
+                ^^XA
+                ^PW575
+                ^LL400
+
+                ^FO0,40
+                ^FB575,1,0,C,0
+                ^A0N,40,40
+                ^FDThis is a QR code test^FS
+
+                ^FO224,100           
+                ^BQN,2,6
+                ^FDLA,9988#61#2000001091449#000485^FS
+
+                ^XZ
+                """.trimIndent()
+
+                // Send the data to printer as a byte array.
+                thePrinterConn.write(zplData.toByteArray())
+                Log.i("Print Test", "Sent ZPL bytes to printer")
+            } catch (e: ConnectionException) {
+                // Handle communications error here.
+                e.printStackTrace()
+            } finally {
+                // Close the connection to release resources.
+                thePrinterConn.close()
+            }
+        }
+    }
 
 
     fun sendPdfToPrinter(
@@ -200,12 +246,17 @@ class MainViewModel : ViewModel() {
 
         val qrSize = 20f // size in points
         val left = (pageWidth - qrSize) / 2f
-        val top = pageHeight* 2f / 3
+        val top = pageHeight * 2f / 3
 
         canvas.drawBitmap(
             qrCodeBitmap,
             null, // source rect (null = entire bitmap)
-            RectF(left, top, left + qrCodeBitmap.width, top + qrCodeBitmap.height), // destination rect in PDF units
+            RectF(
+                left,
+                top,
+                left + qrCodeBitmap.width,
+                top + qrCodeBitmap.height
+            ), // destination rect in PDF units
             null // paint
         )
     }

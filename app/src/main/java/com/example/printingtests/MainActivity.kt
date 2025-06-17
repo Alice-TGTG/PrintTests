@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,6 +30,10 @@ import androidx.compose.ui.unit.dp
 
 
 class MainActivity : ComponentActivity() {
+
+    val PRINTER_IP = "192.168.8.201" // MACBOOK: "10.24.111.121" // "192.168.1.32" // ZQL620: "192.168.8.201"
+    val PRINTER_PORT = 9100
+
 
     val viewModel: MainViewModel by viewModels<MainViewModel>()
 
@@ -57,7 +62,7 @@ class MainActivity : ComponentActivity() {
                                 productName = "Frieda Miranda",
                                 initialPriceCents = 9305,
                                 finalPriceCents = 7495,
-                                qrCodeContent = " 9988#61#2000001091449#000485",
+                                qrCodeContent = "9988#61#2000001091449#000485",
                             )
                         }
                     )
@@ -71,9 +76,19 @@ class MainActivity : ComponentActivity() {
                             startActivityForResult(intent, REQUEST_CODE_OPEN_PDF)
                         }
                     )
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    PrintZPLWithQRCode(onClickSendZPL = {
+                        viewModel.sendZPL(printerIp = PRINTER_IP)
+                    })
                 }
             }
         }
+    }
+
+    @Composable
+    fun PrintZPLWithQRCode(onClickSendZPL: () -> Unit = {}) {
+        Button(onClick = { onClickSendZPL() }) { Text("Send ZPL with QR code") }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -83,8 +98,8 @@ class MainActivity : ComponentActivity() {
                 viewModel.sendPdfToPrinter(
                     contentResolver = contentResolver,
                     pdfUri = uri,
-                    printerIp = "192.168.1.32",
-                    port = 9100,
+                    printerIp = PRINTER_IP,
+                    port = PRINTER_PORT,
                 )
                 Log.i("Main", "Done sending PdF")
             }
@@ -109,7 +124,7 @@ fun PrintCommand(
     Button(
         onClick = { onPrintClicked() },
         content = {
-            Text("Send hardcoded content")
+            Text("Send PDF bytes to printer IP:port")
         })
 }
 

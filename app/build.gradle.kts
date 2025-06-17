@@ -57,6 +57,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.qrcode.g0dkar)
+    implementation(files("libs/ZSDK_ANDROID_API.jar"))
 
     // Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
