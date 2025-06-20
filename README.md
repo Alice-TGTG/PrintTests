@@ -3,8 +3,9 @@
 
 THe IP / port used as the printer are hard coded in the app. 
 If using socat, check your IP (`ifconfig` => find your computer's "inet" address that is not 127.0.0.1, eg "inet 192.168.1.32")
-If using a real printer, get it's IP
-Both the Android device on which the PoC is running and the "printer" (real or emulated) must be on the same WiFi network
+If using a real printer, get it's IP.
+
+Both the Android device on which the PoC is running and the "printer" (real or emulated) must be on the **same WiFi network**
 
 Send PDF file via TCP socket:
 To use an emulated printer, eg socat
