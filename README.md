@@ -9,7 +9,7 @@ Both the Android device on which the PoC is running and the "printer" (real or e
 Send PDF file via TCP socket:
 To use an emulated printer, eg socat
 - set up socat (brew install socat)
-- launch socat to listen to port 9100, and save all it eceives to a local file:
+- launch socat to listen to port 9100, and save all it receives to a local file:
 ```
 socat -u TCP-LISTEN:9100,reuseaddr,fork OPEN:/tmp/received_printjob.pdf,creat,append
 ```
