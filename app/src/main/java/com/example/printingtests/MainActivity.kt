@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -26,12 +27,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 
 class MainActivity : ComponentActivity() {
 
-    val PRINTER_IP = "192.168.8.201" // MACBOOK: "10.24.111.121" // "192.168.1.32" // ZQL620: "192.168.8.201"
+    val PRINTER_IP =
+        "192.168.8.201" // MACBOOK: "10.24.111.121" // "192.168.1.32" // ZQL620: "192.168.8.201"
     val PRINTER_PORT = 9100
 
     val QR_CODE = "9988#61#2000001091449#000485"
@@ -54,6 +57,8 @@ class MainActivity : ComponentActivity() {
                 val printState = viewModel.isSentToPrinter.collectAsState()
 
                 Column {
+                    ShowPrinterConfig()
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
                     ShowStatus(pdfState.value, printState.value)
                     GeneratePdf(
                         onClickGenerate = {
@@ -84,6 +89,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    @Composable
+    fun ShowPrinterConfig() {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            text = "IP:port: $PRINTER_IP:$PRINTER_PORT",
+            textAlign = TextAlign.Center,
+        )
     }
 
     @Composable
